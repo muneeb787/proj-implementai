@@ -6,4 +6,5 @@ urlpatterns = [
     path('<int:lead_id>/', views.get_lead_by_id, name='get_lead'),
     path('getAll', views.get_leads_list, name='get_lead'),
     path('initiate-call/<int:lead_id>', views.initiate_phone_call, name='vapi_call_initiate'),
+    path('callback', views.callback, name='vapi_callback'),
 ]

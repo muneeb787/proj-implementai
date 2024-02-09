@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Lead
 from .serializers import LeadSerializer
-from vapi_python import Vapi
+import requests
+import uuid
 
 @api_view(['POST'])
 def create_lead(request):
@@ -44,36 +45,54 @@ def initiate_phone_call(request, lead_id):
     lead = get_object_or_404(Lead, pk=lead_id)
     phone_number = lead.phone_number
     callback_url = "http://127.0.0.1:8000/callback/{}".format(lead_id)
-    payload = {
-        "phoneNumberId": "+447456083068",
-        'serverUrl': callback_url
-    }
-    # Make POST request to Vapi endpoint
-    # Replace <YOUR_API_KEY> with your actual Vapi API key
-    try:
-        vapi = create_web_call(api_key='c1422ff5-c691-41d7-8d05-1e59d3cec79f')
-        assistant = {
-        'firstMessage': 'Hey, how are you?',
-        'context': 'You are an employee at a drive thru...',
-        'model': 'gpt-3.5-turbo',
-        'voice': 'jennifer-playht',
-        "recordingEnabled": True,
-        "interruptionsEnabled": False
-        }
+    url = "https://api.vapi.ai/call/phone"
 
-        vapi.start(assistant=assistant)
+    phone_number_id = str(uuid.uuid4())
+    payload = {
+        "customer": {
+        "name": "name",
+        "number": "+447456083068",
+        },
+        'assistantId': "7efc3637-4cb0-4e05-b109-9d0b3c689f82",
+        "maxDurationSeconds": 10,
+        "assistant": {
+        "serverUrl" : "http://127.0.0.1:8000/leads/callback",
+        },
+        # "metadata": {},
+        # "phoneNumber": {
+        #     "assistantId": "<string>",
+        #     "name": "<string>",
+        #     "twilioAccountSid": "<string>",
+        #     "twilioAuthToken": "<string>",
+        #     "twilioPhoneNumber": "<string>"
+        # },
+        "phoneNumberId": "805d4ff2-3b02-44c5-a722-534005571453",
+    }
+
+    
+    headers = {
+        "Authorization": "Bearer c1422ff5-c691-41d7-8d05-1e59d3cec79f",
+        "Content-Type": "application/json"
+    }
+
+        # Make POST request to Vapi endpoint
+        # Replace <YOUR_API_KEY> with your actual Vapi API key
+    try:
+        response = requests.request("POST", url, json=payload, headers=headers)
         # response = requests.post('https://api.vapi.ai/call/phone', json=payload, headers={'Authorization': 'Bearer c1422ff5-c691-41d7-8d05-1e59d3cec79f'})
-        # if response.status_code == 200:
-        #     return Response({'message': 'Phone call initiated successfully'})
-        # else:
-        #     print(f"Error: {response.status_code}")
-        #     print(response.text)  # Print the response content for further investigation
-        #     return Response({'error': 'Failed to initiate phone call'}, status=response.status_code)
+        if response.status_code == 201:
+            print(response.text)  
+            return Response({'message': 'Phone call initiated successfully'})
+        else:
+            print(f"Error: {response.status_code}")
+            print(response.text)  # Print the response content for further investigation
+            return Response({'error': 'Failed to initiate phone call'}, status=response.status_code)
     except IntegrityError as e:
         return Response({'error': str(e)})
 
 @api_view(['GET'])
 def callback(request, lead_id):
+    print("Call completed")
     lead = get_object_or_404(Lead, pk=lead_id)
     lead.status = 'Call completed'
     lead.save()
