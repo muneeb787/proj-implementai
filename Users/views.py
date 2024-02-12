@@ -22,7 +22,6 @@ def get_by_Id(request, user_id):
         return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def create_user(request):
     username = request.data.get('username')
     password = request.data.get('password')
