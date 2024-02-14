@@ -2,11 +2,47 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.parsers import FileUploadParser
 from rest_framework import status
 from .models import Lead
 from .serializers import LeadSerializer
 import requests
 import uuid
+import csv
+
+
+@api_view(['POST'])
+def create_lead_from_csv(request):
+    file = request.FILES.get('file')
+    if not file:
+        return Response({"error": "No file uploaded"}, status=400)
+
+    # Validate file size and type
+    if file.size > 10485760:  # 10 MB limit
+        return Response({"error": "File size exceeds limit"}, status=413)
+    if not file.name.endswith('.csv'):
+        return Response({"error": "Invalid file format (must be CSV)"}, status=400)
+    
+    csv_parser = FileUploadParser()
+    decoded_file = file.read().decode('utf-8').splitlines()
+    csv_reader = csv.reader(decoded_file)
+    leads_created = 0
+    for row in csv_reader:
+        if len(row) != 3:
+            return Response({"error": "Invalid CSV format. Each row must have 3 columns."}, status=400)
+        name, phone_number, vapi_call_id = row
+        try:
+            Lead.objects.create(
+                name=name,
+                phone_number=phone_number,
+                vapi_call_id=vapi_call_id
+            )
+            leads_created += 1
+        except IntegrityError as e:
+            # Handle integrity errors if necessary
+            print(f"Integrity error for row: {row}")
+    
+    return Response({"message": f"{leads_created} leads created successfully"}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 def create_lead(request):
