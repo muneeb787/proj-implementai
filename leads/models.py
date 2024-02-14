@@ -6,6 +6,7 @@ class Lead(models.Model):
     ACTIVE = "AC", "Active"
     PENDING = "PD", "Pending"
 
+  name = models.CharField(max_length=100)
   phone_number = models.CharField(max_length=300)
   vapi_call_id = models.CharField(max_length=100, null=True, blank=True)
 

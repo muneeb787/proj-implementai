@@ -5,11 +5,12 @@ from django.contrib.auth import urls as  authUrls
 from django.contrib.auth import views as  auth_views
 from Organization import urls as organization_urls
 from leads import urls as lead_urls
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include(user_urls)),
     path('organizations/', include(organization_urls)),
     path('leads/', include(lead_urls)),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

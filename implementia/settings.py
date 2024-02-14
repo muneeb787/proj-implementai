@@ -27,6 +27,45 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:8000"
+]
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000",
+    "http://127.0.0.1:8000",
+    # Add other origins as needed
+]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',  # Add your frontend origin here
+    'http://127.0.0.1:8000',  # Add your frontend origin here
+]
+
+SECURE_SSL_REDIRECT=False
+SECURE_HSTS_INCLUDE_SUBDOMAINS=False
+SECURE_HSTS_PRELOAD=False
+# SESSION_COOKIE_SECURE=False
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "hx-request",
+    "hx-current-url",
+    "hx-target",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+# CORS_ALLOW_CREDENTIALS = True
+# CSRF_COOKIE_SECURE = False
+
 
 # Application definition
 
@@ -40,6 +79,7 @@ INSTALLED_APPS = [
 
     'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',
     'Organization',
     'leads',
 ]
@@ -48,12 +88,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-    ),
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    ),
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.JSONParser',
     ),
 }
 
@@ -66,18 +100,18 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-]
-
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
 ]
 
 ROOT_URLCONF = 'implementia.urls'
+
+
+
+
 
 TEMPLATES = [
     {

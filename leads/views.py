@@ -10,6 +10,7 @@ import uuid
 
 @api_view(['POST'])
 def create_lead(request):
+    name = request.data.get('name')
     phone_number = request.data.get('phone_number')
     vapi_call_id = request.data.get('vapi_call_id')
     # status = request.data.get('status')
@@ -19,6 +20,7 @@ def create_lead(request):
 
     try:
         lead = Lead.objects.create(
+            name = name,
             phone_number=phone_number,
             # status=status,
             # vapi_call_id=vapi_call_id
