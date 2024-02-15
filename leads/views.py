@@ -6,6 +6,7 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework import status
 from .models import Lead
 from .serializers import LeadSerializer
+from rest_framework.pagination import PageNumberPagination
 import requests
 import uuid
 import csv
@@ -74,9 +75,11 @@ def get_lead_by_id(request, lead_id):
 
 @api_view(['GET'])
 def get_leads_list(request):
+    paginator = PageNumberPagination()
     leads = Lead.objects.all()
-    serializer = LeadSerializer(leads, many=True)
-    return Response(serializer.data)
+    result_page = paginator.paginate_queryset(leads, request)
+    serializer = LeadSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @api_view(['POST'])
 def initiate_phone_call(request, lead_id):
